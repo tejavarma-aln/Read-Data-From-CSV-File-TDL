@@ -1,0 +1,139 @@
+
+
+[#Menu:GatewayOfTally]
+	Add:Item:DisplayCSVData:Call:ReadCSVData
+
+
+
+[Function:ReadCSVData]
+    Variable:CurrentData:String	  
+	List Variable:EmployeeListVar  
+    Variable:Mcounter:Number  
+	
+	01:Open File:"Employees.csv":Text:Read:UTF-8    ;; Path to the file
+	
+	02:Set:Mcounter:1 
+	
+	03:While:NOT $$FileIsEOF   
+	
+	04:Set:CurrentData:$$FileRead  
+	
+	05:If:NOT $$IsEmpty:##CurrentData and $$LoopIndex > 1  
+	
+	06:List Add Ex:EmployeeListVar 
+	
+	07:Set:EmployeeListVar[##Mcounter].Name:$$EmployeeTokenizer:##CurrentData:$$Number:1  
+	
+	08:Set:EmployeeListVar[##Mcounter].Age:$$EmployeeTokenizer:##CurrentData:$$Number:2 
+	
+	09:Set:EmployeeListVar[##Mcounter].Gender:$$EmployeeTokenizer:##CurrentData:$$Number:3 
+	
+	10:Set:EmployeeListVar[##Mcounter].State:$$EmployeeTokenizer:##CurrentData:$$Number:4 
+	
+	11:Set:EmployeeListVar[##Mcounter].Salary:$$EmployeeTokenizer:##CurrentData:$$Number:5 
+	
+	12:Increment:Mcounter       
+	
+	13:End If
+	
+	14:End While			
+	
+	15:Close File
+	
+	16:Display:EmployeeData
+	
+	17:Return
+	
+
+
+	
+[Collection:EmployeeDataFromCsv]
+	Data Source:Variable:EmployeeListVar
+	
+
+
+[Variable:EmployeeListVar]
+	Variable:Name,Age,Gender,State,Salary : String
+	
+
+	
+[Function:EmployeeTokenizer]
+	Parameter:Emprow:String
+	Parameter:Eindex :Number
+	Variable :Ecounter:Number:1
+	
+	01:For Token:TokenVar:##Emprow:","
+	02:If:##Eindex = ##Ecounter
+	03:Return:##TokenVar
+	04:End If
+	05:Increment:Ecounter
+	06:End For
+	
+
+ 
+[Report:EmployeeData]
+	Form:EmployeeData
+	Title:"Employees"
+	
+[Form:EmployeeData]
+	Part:EmployeeData
+	
+[Part:EmployeeData]
+	Line:EmployeeHeaders,EmployeeData
+	Repeat:EmployeeData:EmployeeDataFromCsv
+	Width:100% page
+	Height:100% page
+	Scroll:Vertical
+	Common Border:Yes
+	
+[Line:EmployeeHeaders]
+	Border:ThickTopBottom
+	Space Top:0.5
+	Fields:EmpName,EmpAge,EmpGender,EmpState,EmpSalary
+	Local:Field:EmpName:Set as:"Name"
+	Local:Field:EmpAge:Set as:"Age"
+	Local:Field:EmpGender:Set as:"Gender"
+	Local:Field:EmpState:Set as:"State"
+	Local:Field:EmpSalary:Set as:"Salary"
+	Local:Field:default:Border:thinright
+	Local:Field:default:Style:EmployeeHdStyle
+	Local:Field:default:Align:Left
+
+[Line:EmployeeData]
+	Fields:EmpName,EmpAge,EmpGender,EmpState,EmpSalary
+	Border:thinbottom
+	Space Top:0.5
+	Local:Field:default:Style:EmployeeStyle
+	Local:Field:default:Align:Left
+	Local:Field:default:Border:thinright
+	
+	
+[Field:EmpName]
+	Set as:$Name
+	Width:20
+	
+[Field:EmpAge]
+	Set as:$Age
+	Width:30
+	
+[Field:EmpGender]
+	Set as:$Gender
+	Width:10
+	
+[Field:EmpState]
+	Set as:$State
+	Width:20
+	
+[Field:EmpSalary]
+	Set as:$Salary	
+	Width:10
+		
+[Style:EmployeeStyle]
+	Font:"Sans-serif"
+	Height:12
+
+[Style:EmployeeHdStyle]
+	Font:"Sans-Serif"
+	Height:12
+	Bold:yes
+	
